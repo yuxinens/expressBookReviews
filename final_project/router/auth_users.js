@@ -3,11 +3,14 @@ const jwt = require('jsonwebtoken');
 let books = require("./booksdb.js");
 const regd_users = express.Router();
 
-let users = [
-    { username: "newuser", password: "password123" }
-];
+const jwtSecret = process.env.JWT_SECRET || 'my_secret_key';
 
-const jwtSecret = process.env.JWT_SECRET || 'default_secret_key';
+let users = [
+    { 
+        username: "newuser", 
+        password: "password123" 
+    }
+];
 
 //returns boolean
 const isValid = (username) => {
@@ -43,28 +46,18 @@ regd_users.post("/login", (req, res) => {
 regd_users.put("/auth/review/:isbn", (req, res) => {
     const { isbn } = req.params;
     const { review } = req.body;
+    const username = req.user.username; // Ambil username dari token
 
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) {
-        return res.status(401).json({ message: "Authorization token missing" });
+    if (!books[isbn]) {
+        return res.status(404).json({ message: "Book not found" });
     }
 
-    try {
-        const decoded = jwt.verify(token, jwtSecret);
-        const username = decoded.username;
-
-        if (books[isbn]) {
-            if (!books[isbn].reviews) {
-                books[isbn].reviews = {};
-            }
-            books[isbn].reviews[username] = review;
-            return res.status(200).json({ message: "Review added/updated successfully" });
-        } else {
-            return res.status(404).json({ message: "Book not found" });
-        }
-    } catch (err) {
-        return res.status(403).json({ message: "Invalid token" });
+    if (!books[isbn].reviews) {
+        books[isbn].reviews = {};
     }
+
+    books[isbn].reviews[username] = review;
+    return res.status(200).json({ message: "Review added/updated successfully" });
 });
 
 module.exports.authenticated = regd_users;
