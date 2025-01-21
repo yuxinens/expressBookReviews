@@ -76,7 +76,7 @@ public_users.get('/review/:isbn', function (req, res) {
   }
 });
 
-//Get book list using async-await
+//Get book list using promise
 public_users.get('/promise/books', function (req, res) {
     axios.get('https://l200220134-5000.theianext-0-labs-prod-misc-tools-us-east-0.proxy.cognitiveclass.ai/')
       .then(response => {
@@ -90,7 +90,20 @@ public_users.get('/promise/books', function (req, res) {
         });
       });
   });
-  
-  
 
+public_users.get('/promise/isbn/:isbn', (req, res) => {
+    const { isbn } = req.params;
+  
+    axios.get(`https://l200220134-5000.theianext-0-labs-prod-misc-tools-us-east-0.proxy.cognitiveclass.ai/isbn/${isbn}`)
+      .then(response => {
+        res.status(200).json(response.data);
+      })
+      .catch(error => {
+        res.status(500).json({
+          message: "Error retrieving book details by ISBN",
+          error: error.message
+        });
+      });
+});
+  
 module.exports.general = public_users;
