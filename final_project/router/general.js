@@ -1,8 +1,11 @@
 const express = require('express');
+const axios = require('axios');
 let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
+
 const public_users = express.Router();
+
 
 // Register user
 public_users.post("/register", (req, res) => {
@@ -72,5 +75,22 @@ public_users.get('/review/:isbn', function (req, res) {
     return res.status(404).json({ message: "Book not found" });
   }
 });
+
+//Get book list using async-await
+public_users.get('/promise/books', function (req, res) {
+    axios.get('https://l200220134-5000.theianext-0-labs-prod-misc-tools-us-east-0.proxy.cognitiveclass.ai/')
+      .then(response => {
+        res.status(200).json(response.data); // Kirim respons dari server eksternal ke klien
+      })
+      .catch(error => {
+        console.error("Axios error:", error.message);
+        res.status(500).json({ 
+          message: "Error retrieving book list", 
+          error: error.message 
+        });
+      });
+  });
+  
+  
 
 module.exports.general = public_users;
