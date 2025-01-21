@@ -91,6 +91,7 @@ public_users.get('/promise/books', function (req, res) {
       });
   });
 
+// Get book details by ISBN (using Promise)
 public_users.get('/promise/isbn/:isbn', (req, res) => {
     const { isbn } = req.params;
   
@@ -105,5 +106,22 @@ public_users.get('/promise/isbn/:isbn', (req, res) => {
         });
       });
 });
+
+// Get book details by author (using Promise)
+public_users.get('/promise/author/:author', (req, res) => {
+    const { author } = req.params;
   
+    axios.get(`https://l200220134-5000.theianext-0-labs-prod-misc-tools-us-east-0.proxy.cognitiveclass.ai/author/${author}`)
+      .then(response => {
+        res.status(200).json(response.data);
+      })
+      .catch(error => {
+        res.status(500).json({
+          message: "Error retrieving books by author",
+          error: error.message
+        });
+      });
+  });
+  
+
 module.exports.general = public_users;
